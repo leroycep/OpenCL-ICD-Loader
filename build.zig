@@ -24,6 +24,7 @@ pub fn build(b: *std.build.Builder) void {
     opencl.c_std = .C99;
     opencl.addConfigHeader(icd_config_header);
     opencl.linkLibrary(opencl_headers.artifact("OpenCL"));
+    opencl.installLibraryHeaders(opencl_headers.artifact("OpenCL"));
 
     opencl.defineCMacro("CL_TARGET_OPENCL_VERSION", b.option([]const u8, "target-version", "Set the target opencl version (default: 300)") orelse "300");
     opencl.defineCMacro("CL_NO_NON_ICD_DISPATCH_EXTENSION_PROTOTYPES", null);
