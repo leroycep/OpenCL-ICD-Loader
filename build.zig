@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
@@ -21,7 +21,7 @@ pub fn build(b: *std.build.Builder) void {
         .target = target,
         .optimize = optimize,
     });
-    opencl.c_std = .C99;
+    opencl.root_module.c_std = .C99;
     opencl.addConfigHeader(icd_config_header);
     opencl.linkLibrary(opencl_headers.artifact("OpenCL"));
     opencl.installLibraryHeaders(opencl_headers.artifact("OpenCL"));
@@ -32,27 +32,27 @@ pub fn build(b: *std.build.Builder) void {
     opencl.defineCMacro("OPENCL_ICD_LOADER_VERSION_MINOR", "0");
     opencl.defineCMacro("OPENCL_ICD_LOADER_VERSION_REV", "6");
 
-    opencl.addCSourceFiles(&.{
+    opencl.addCSourceFiles(.{ .files = &.{
         "loader/icd.c",
         "loader/icd_dispatch.c",
         "loader/icd_dispatch_generated.c",
-    }, &.{});
-    opencl.addIncludePath("loader");
+    } });
+    opencl.addIncludePath(.{ .path = "loader" });
 
-    if (target.isWindows()) {
-        opencl.addCSourceFiles(&.{
+    if (target.result.os.tag == .windows) {
+        opencl.addCSourceFiles(.{ .files = &.{
             "loader/windows/icd_windows.c",
             "loader/windows/icd_windows_dxgk.c",
             "loader/windows/icd_windows_envvars.c",
             "loader/windows/icd_windows_hkr.c",
             "loader/windows/icd_windows_apppackage.c",
             "loader/windows/OpenCL.rc",
-        }, &.{});
+        } });
     } else {
-        opencl.addCSourceFiles(&.{
+        opencl.addCSourceFiles(.{ .files = &.{
             "loader/linux/icd_linux.c",
             "loader/linux/icd_linux_envvars.c",
-        }, &.{});
+        } });
     }
 
     opencl.linkLibC();
